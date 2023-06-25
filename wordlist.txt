@@ -1,3 +1,6 @@
 turtle
 cat
 dog
+tiger
+gorilla
+human

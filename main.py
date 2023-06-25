@@ -44,15 +44,13 @@ def add_words():
     for word in word_list:
         attempts = 50
         # horizontal, vertical or diagonal
-        orientation = randint(0, 1)
+        orientation = randint(0, 3)
 
-        print(f"\n\nword check: {word}")
         place_x, place_y = random_placement(word)
 
-        # # reverse
-        # if randint(0, 4) == 0:
-        #     word = word[::-1]
-        #     print(f"{word} is reversed!")
+        # reverse
+        if randint(0, 4) == 0 or (orientation == 3 and randint(0, 4) <= 3):
+            word = word[::-1]
 
         # horizontal
         if orientation == 0:
@@ -60,10 +58,8 @@ def add_words():
 
             conflict = False
             while True:
-                for j in range(place_x, place_x+len(word)):
-                    if word_dict.get((place_y, j)) is not None and board[place_y][j] != word[j-place_x]:
-                        print(f"conflict found with {word} and {word_dict.get((place_y, j))} with {attempts}")
-                        print(f"COORDS: y:{place_y} x:{place_x}")
+                for j in range(len(word)):
+                    if word_dict.get((place_y, place_x+j)) is not None and board[place_y][place_x+j] != word[j]:
                         place_x, place_y = random_placement(word)
                         place_x = bound(word, True, False)
                         conflict = True
@@ -83,17 +79,14 @@ def add_words():
                 board[place_y][place_x+j] = chars
                 answer_key[place_y][place_x+j] = chars
                 word_dict[(place_y, place_x+j)] = word
-            print(f"added word {word} at y:{place_y} x:{place_x}")
-
+        # vertical
         elif orientation == 1:
             place_y = bound(word, False, True)
 
             conflict = False
             while True:
-                for j in range(place_y, place_y+len(word)):
-                    if word_dict.get((j, place_x)) is not None and board[j][place_x] != word[j-place_y]:
-                        print(f"conflict found with {word} and {word_dict.get((j, place_x))} with {attempts}")
-                        print(f"COORDS: y:{place_y} x:{place_x}")
+                for j in range(len(word)):
+                    if word_dict.get((place_y+j, place_x)) is not None and board[place_y+j][place_x] != word[j]:
                         place_x, place_y = random_placement(word)
                         place_y = bound(word, False, True)
                         conflict = True
@@ -112,7 +105,59 @@ def add_words():
                 board[place_y + j][place_x] = chars
                 answer_key[place_y + j][place_x] = chars
                 word_dict[(place_y + j, place_x)] = word
-            print(f"added word {word} at y:{place_y} x:{place_x}")
+        # diagonal top-left
+        elif orientation == 2:
+            place_x, place_y = bound(word, True, True)
+
+            conflict = False
+            while True:
+                for j in range(len(word)):
+                    if word_dict.get((place_y+j, place_x+j)) is not None and board[place_y+j][place_x+j] != word[j]:
+                        place_y, place_x = bound(word, True, True)
+                        conflict = True
+                        if attempts <= 0:
+                            print(f"failed to add {word} after 50 tries")
+                            return -1
+                        attempts -= 1
+                        break
+                if conflict:
+                    conflict = False
+                    continue
+                break
+
+            # add word
+            for j, chars in enumerate(word):
+                board[place_y + j][place_x + j] = chars
+                answer_key[place_y + j][place_x + j] = chars
+                word_dict[(place_y + j, place_x + j)] = word
+        # diagonal bot-left
+        else:
+            place_x = bound(word, True)
+            place_y = randint(len(word)-1, board_len - 1)
+
+
+            conflict = False
+            while True:
+                for j in range(len(word)):
+                    if word_dict.get((place_y-j, place_x+j)) is not None and board[place_y-j][place_x+j] != word[j]:
+                        place_x = bound(word, True)
+                        place_y = randint(len(word) - 1, board_len - 1)
+                        conflict = True
+                        if attempts <= 0:
+                            print(f"failed to add {word} after 50 tries")
+                            return -1
+                        attempts -= 1
+                        break
+                if conflict:
+                    conflict = False
+                    continue
+                break
+
+            # add word
+            for j, chars in enumerate(word):
+                board[place_y-j][place_x + j] = chars
+                answer_key[place_y-j][place_x + j] = chars
+                word_dict[(place_y-j, place_x + j)] = word
     return 0
 
 

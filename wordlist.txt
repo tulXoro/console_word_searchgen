@@ -1,6 +1,6 @@
 turtle
 cat
 dog
-tiger
-gorilla
+fish
 human
+gold

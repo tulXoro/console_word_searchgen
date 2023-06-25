@@ -38,9 +38,7 @@ for i in range(board_len):
     board.append(row)
     answer_key.append(answer_row)
 
-# Add the words
-# for i, row in enumerate(board):
-#     for j, col in enumerate(row):
+
 def add_words():
     global board
     for word in word_list:
@@ -118,6 +116,7 @@ def add_words():
     return 0
 
 
+# randomly select a spot to place word
 def random_placement(word: str) -> Tuple[int, int]:
     # pick an x and y value
     placement_x = randint(0, board_len - 1)
@@ -128,6 +127,8 @@ def random_placement(word: str) -> Tuple[int, int]:
         placement_y = randint(0, board_len - 1)
     return placement_x, placement_y
 
+
+# Make sure words stay in the bounds of the grid
 def bound(word, x=False, y=False):
     place_x = randint(0, board_len - len(word) - 1)
     place_y = randint(0, board_len - len(word) - 1)
@@ -137,7 +138,6 @@ def bound(word, x=False, y=False):
         return place_x
     return place_y
 
-print(word_list)
 
 while tries > 0:
     if add_words() != 0:
@@ -145,7 +145,6 @@ while tries > 0:
         print(f"failed to add words... trying again")
     else:
         break
-
 
 if tries == 0:
     print(f"exit with 0 tries")

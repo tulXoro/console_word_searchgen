@@ -2,6 +2,10 @@ from random import randint, shuffle
 
 from typing import Tuple
 
+import logging
+
+logging.basicConfig(level=0, filename="wordsearch.log", filemode="w", format='%(levelname)s: %(message)s')
+
 with open("wordlist.txt") as file:
     word_list = file.readlines()
 
@@ -16,17 +20,16 @@ alphabet = list(alphabet)
 word_dict = {}
 tries = 50
 
-# board_len = input("Please input how big the board should be: ")
-board_len = 10
-flag = True
-
-# Make sure input is a string
-while flag:
+board_len = input("Please input how big the board should be: ")
+while True:
     try:
         board_len = int(board_len)
-        flag = False
+        break
     except ValueError:
-        board_len = input("Please input a number. Try again: ")
+        board_len = input("Invalid value... Try again: ")
+        logging.exception(f"Invalid value entered for board length ({board_len})")
+
+logging.info(f"Value ({board_len}) has been set as board length")
 
 # Randomly add letters into the board
 for i in range(board_len):
@@ -38,10 +41,16 @@ for i in range(board_len):
     board.append(row)
     answer_key.append(answer_row)
 
+logging.info(f"Added random letters to row...")
 
 def add_words():
     global board
     for word in word_list:
+        if len(word) > board_len:
+            print(f"Word {word} is too large! Skipping...")
+            logging.critical(f"Word {word} is too large! Skipping...")
+            continue
+
         attempts = 50
         # horizontal, vertical or diagonal
         orientation = randint(0, 3)
@@ -51,6 +60,8 @@ def add_words():
         # reverse
         if randint(0, 4) == 0 or (orientation == 3 and randint(0, 4) <= 3):
             word = word[::-1]
+
+        logging.info(f"Adding \"{word}\" at attempt {attempts} with orientation {orientation}")
 
         # horizontal
         if orientation == 0:
@@ -64,7 +75,8 @@ def add_words():
                         place_x = bound(word, True, False)
                         conflict = True
                         if attempts <= 0:
-                            print(f"failed to add {word} after 50 tries")
+                            print(f"failed to add --{word}-- after 50 tries")
+                            logging.error(f"Failed to add \"{word}\" after 50 tries")
                             return -1
                         attempts -= 1
                         break
@@ -91,7 +103,8 @@ def add_words():
                         place_y = bound(word, False, True)
                         conflict = True
                         if attempts <= 0:
-                            print(f"failed to add {word} after 50 tries")
+                            print(f"Failed to add --{word}-- after 50 tries")
+                            logging.error(f"Failed to add \"{word}\" after 50 tries")
                             return -1
                         attempts -= 1
                         break
@@ -116,7 +129,8 @@ def add_words():
                         place_y, place_x = bound(word, True, True)
                         conflict = True
                         if attempts <= 0:
-                            print(f"failed to add {word} after 50 tries")
+                            print(f"Failed to add --{word}-- after 50 tries")
+                            logging.error(f"Failed to add \"{word}\" after 50 tries")
                             return -1
                         attempts -= 1
                         break
@@ -135,7 +149,6 @@ def add_words():
             place_x = bound(word, True)
             place_y = randint(len(word)-1, board_len - 1)
 
-
             conflict = False
             while True:
                 for j in range(len(word)):
@@ -144,7 +157,8 @@ def add_words():
                         place_y = randint(len(word) - 1, board_len - 1)
                         conflict = True
                         if attempts <= 0:
-                            print(f"failed to add {word} after 50 tries")
+                            print(f"Failed to add --{word}-- after 50 tries")
+                            logging.error(f"Failed to add \"{word}\" after 50 tries")
                             return -1
                         attempts -= 1
                         break
@@ -178,7 +192,7 @@ def bound(word, x=False, y=False):
     place_x = randint(0, board_len - len(word) - 1)
     place_y = randint(0, board_len - len(word) - 1)
     if x and y:
-        return (place_x, place_y)
+        return place_x, place_y
     elif x:
         return place_x
     return place_y
@@ -187,12 +201,14 @@ def bound(word, x=False, y=False):
 while tries > 0:
     if add_words() != 0:
         tries -= 1
-        print(f"failed to add words... trying again")
+        print(f"Failed to add words... Trying again")
+        logging.error(f"Failed to add words with {tries} tries")
     else:
         break
 
 if tries == 0:
-    print(f"exit with 0 tries")
+    print(f"Failed to generate words. Max number of attempts have exceeded.")
+    logging.critical("Failed to add words after 50 tries...")
     exit(-1)
 
 # Export to a different file
@@ -201,9 +217,13 @@ with open("output.txt", "w") as file:
     for row in board:
         out_str += " ".join(row) + "\n"
     file.write(out_str)
+    logging.info("Generated output file.")
 
 with open("answer_key.txt", "w") as file:
     out_str = ""
     for row in answer_key:
         out_str += " ".join(row) + "\n"
     file.write(out_str)
+    logging.info("Generated answer key file.")
+
+logging.info(f"Completed with {tries} tries remaining.")

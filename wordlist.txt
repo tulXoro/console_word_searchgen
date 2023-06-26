@@ -4,3 +4,6 @@ dog
 fish
 human
 gold
+tree
+alien
+fox

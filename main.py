@@ -43,6 +43,7 @@ for i in range(board_len):
 
 logging.info(f"Added random letters to row...")
 
+
 def add_words():
     global board
     for word in word_list:

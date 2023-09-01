@@ -1,6 +1,6 @@
 from random import randint, shuffle
 
-from typing import Tuple
+from typing import Tuple, Callable
 
 import logging
 
@@ -36,12 +36,33 @@ for i in range(board_len):
     row = []
     answer_row = []
     for j in range(board_len):
-        row.append(alphabet[randint(0, len(alphabet)-1)])
+        row.append(alphabet[randint(0, len(alphabet) - 1)])
         answer_row.append("*")
     board.append(row)
     answer_key.append(answer_row)
 
 logging.info(f"Added random letters to row...")
+
+
+def insert_word(x, y, word, direction):
+    direction_func = {
+        "row": (lambda i: (i, 0)),
+        "col": (lambda i: (0, i)),
+        "diagbl": (lambda i: (i, i)),
+        "diagtl": (lambda i: (i, -i))
+    }.get(direction)
+
+    if direction_func is None:
+        return
+
+    for j, char in enumerate(word):
+        dx, dy = direction_func(j)
+        new_y, new_x = y + dy, x + dx
+        logging.info(rf"Adding word '{word}' at ({x},{y}) on ({new_x},{new_y}) facing {direction}")
+        # Insert char at (new_y, new_x)
+        board[new_y][new_x] = char
+        answer_key[new_y][new_x] = char
+        word_dict[(new_y, new_x)] = word
 
 
 def add_words():
@@ -71,27 +92,20 @@ def add_words():
             conflict = False
             while True:
                 for j in range(len(word)):
-                    if word_dict.get((place_y, place_x+j)) is not None and board[place_y][place_x+j] != word[j]:
+                    if word_dict.get((place_y, place_x + j)) is not None and board[place_y][place_x + j] != word[j]:
                         place_x, place_y = random_placement(word)
                         place_x = bound(word, True, False)
                         conflict = True
                         if attempts <= 0:
-                            print(f"failed to add --{word}-- after 50 tries")
                             logging.error(f"Failed to add \"{word}\" after 50 tries")
                             return -1
                         attempts -= 1
                         break
-                if conflict:
-                    conflict = False
-                    continue
-
-                break
+                if not conflict:
+                    break
 
             # add word
-            for j, chars in enumerate(word):
-                board[place_y][place_x+j] = chars
-                answer_key[place_y][place_x+j] = chars
-                word_dict[(place_y, place_x+j)] = word
+            insert_word(place_x, place_y, word, "row")
         # vertical
         elif orientation == 1:
             place_y = bound(word, False, True)
@@ -99,26 +113,21 @@ def add_words():
             conflict = False
             while True:
                 for j in range(len(word)):
-                    if word_dict.get((place_y+j, place_x)) is not None and board[place_y+j][place_x] != word[j]:
+                    if word_dict.get((place_y + j, place_x)) is not None and board[place_y + j][place_x] != word[j]:
                         place_x, place_y = random_placement(word)
                         place_y = bound(word, False, True)
                         conflict = True
                         if attempts <= 0:
-                            print(f"Failed to add --{word}-- after 50 tries")
                             logging.error(f"Failed to add \"{word}\" after 50 tries")
                             return -1
                         attempts -= 1
                         break
-                if conflict:
-                    conflict = False
-                    continue
-                break
+                if not conflict:
+                    break
 
             # add word
-            for j, chars in enumerate(word):
-                board[place_y + j][place_x] = chars
-                answer_key[place_y + j][place_x] = chars
-                word_dict[(place_y + j, place_x)] = word
+            insert_word(place_x, place_y, word, "col")
+
         # diagonal top-left
         elif orientation == 2:
             place_x, place_y = bound(word, True, True)
@@ -126,53 +135,43 @@ def add_words():
             conflict = False
             while True:
                 for j in range(len(word)):
-                    if word_dict.get((place_y+j, place_x+j)) is not None and board[place_y+j][place_x+j] != word[j]:
+                    if word_dict.get((place_y + j, place_x + j)) is not None and board[place_y + j][place_x + j] != \
+                            word[j]:
                         place_y, place_x = bound(word, True, True)
                         conflict = True
                         if attempts <= 0:
-                            print(f"Failed to add --{word}-- after 50 tries")
                             logging.error(f"Failed to add \"{word}\" after 50 tries")
                             return -1
                         attempts -= 1
                         break
-                if conflict:
-                    conflict = False
-                    continue
-                break
+                if not conflict:
+                    break
 
-            # add word
-            for j, chars in enumerate(word):
-                board[place_y + j][place_x + j] = chars
-                answer_key[place_y + j][place_x + j] = chars
-                word_dict[(place_y + j, place_x + j)] = word
+                    # add word
+            insert_word(place_x, place_y, word, "diagbl")
         # diagonal bot-left
         else:
             place_x = bound(word, True)
-            place_y = randint(len(word)-1, board_len - 1)
+            place_y = randint(len(word) - 1, board_len - 1)
 
             conflict = False
             while True:
                 for j in range(len(word)):
-                    if word_dict.get((place_y-j, place_x+j)) is not None and board[place_y-j][place_x+j] != word[j]:
+                    if word_dict.get((place_y - j, place_x + j)) is not None and board[place_y - j][place_x + j] != \
+                            word[j]:
                         place_x = bound(word, True)
                         place_y = randint(len(word) - 1, board_len - 1)
                         conflict = True
                         if attempts <= 0:
-                            print(f"Failed to add --{word}-- after 50 tries")
                             logging.error(f"Failed to add \"{word}\" after 50 tries")
                             return -1
                         attempts -= 1
                         break
-                if conflict:
-                    conflict = False
-                    continue
-                break
+                if not conflict:
+                    break
 
             # add word
-            for j, chars in enumerate(word):
-                board[place_y-j][place_x + j] = chars
-                answer_key[place_y-j][place_x + j] = chars
-                word_dict[(place_y-j, place_x + j)] = word
+            insert_word(place_x, place_y, word, "diagtl")
     return 0
 
 
@@ -228,3 +227,4 @@ with open("answer_key.txt", "w") as file:
     logging.info("Generated answer key file.")
 
 logging.info(f"Completed with {tries} tries remaining.")
+print("Completed. Please check answer_key.txt and output.txt")

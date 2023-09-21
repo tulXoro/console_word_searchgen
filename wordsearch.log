@@ -1,0 +1,24 @@
+INFO: Value (10) has been set as board length
+INFO: Added random letters to row...
+INFO: Adding "tree" at attempt 50 with orientation 2
+INFO: Adding word 'tree' at (4,4) on (4,4) facing diagbl
+INFO: Adding word 'tree' at (4,4) on (5,5) facing diagbl
+INFO: Adding word 'tree' at (4,4) on (6,6) facing diagbl
+INFO: Adding word 'tree' at (4,4) on (7,7) facing diagbl
+INFO: Adding "god" at attempt 50 with orientation 2
+INFO: Adding word 'god' at (4,6) on (4,6) facing diagbl
+INFO: Adding word 'god' at (4,6) on (5,7) facing diagbl
+INFO: Adding word 'god' at (4,6) on (6,8) facing diagbl
+INFO: Adding "hsif" at attempt 50 with orientation 3
+INFO: Adding word 'hsif' at (5,3) on (5,3) facing diagtl
+INFO: Adding word 'hsif' at (5,3) on (6,2) facing diagtl
+INFO: Adding word 'hsif' at (5,3) on (7,1) facing diagtl
+INFO: Adding word 'hsif' at (5,3) on (8,0) facing diagtl
+INFO: Adding "turtle" at attempt 50 with orientation 2
+INFO: Adding word 'turtle' at (1,0) on (1,0) facing diagbl
+INFO: Adding word 'turtle' at (1,0) on (2,1) facing diagbl
+INFO: Adding word 'turtle' at (1,0) on (3,2) facing diagbl
+INFO: Adding word 'turtle' at (1,0) on (4,3) facing diagbl
+INFO: Adding word 'turtle' at (1,0) on (5,4) facing diagbl
+INFO: Adding word 'turtle' at (1,0) on (6,5) facing diagbl
+INFO: Adding "neila" at attempt 50 with orientation 3
